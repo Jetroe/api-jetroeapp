@@ -12,6 +12,11 @@ class ProductSerializer(serializers.ModelSerializer):
         #  indicates that all fields from the Product model should be included in the serialized representation. 
         fields = '__all__'
 
+class ProductSearchSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = ['id', 'name', 'description', 'price']
+
 class Product_ImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product_Image

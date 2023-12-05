@@ -1,11 +1,14 @@
+
 from django.shortcuts import render
+# import Q: for complex queries.
+from django.db.models import Q 
 # DRF provides generic views for common CRUD operations (Create, Retrieve, Update, Delete). Used to simplify view creation.
 from rest_framework import generics
 # Django Rest Framework's class for handling HTTP responses.
 from rest_framework.response import Response
 from . models import Product, Product_Image, Offering, Deal
 # Importing the serializers for these models. Serializers help convert complex data types (models) into Python data types that can be easily rendered into JSON.
-from . serializers import ProductSerializer, Product_ImageSerializer, OfferingSerializer, DealSerializer
+from . serializers import ProductSerializer, Product_ImageSerializer, OfferingSerializer, DealSerializer, ProductSearchSerializer
 
 
 # Create your views here. ok
@@ -17,6 +20,18 @@ class ProductListCreateView(generics.ListCreateAPIView):
     queryset = Product.objects.all()
     # serializer_class: Specifies the serializer to be used for converting between Python objects and JSON for products.
     serializer_class = ProductSerializer
+
+class ProductSearchView(generics.ListAPIView):
+    serializer_class = ProductSearchSerializer
+    def get_queryset(self):
+        search_query = self.request.query_params.get('search', None)
+
+        if search_query:
+            # If there's a search query, filter the products based on name or description
+            return Product.objects.filter(Q(name__icontains=search_query) | Q(description__icontains=search_query))
+        else:
+            # return all objects if no search query.
+            return Product.objects.all()
 
 # generic view for retrieving (Retrieve), updating (Update), and destroying (Destroy - deleting) a single instance of a model.
 class ProductDetailView(generics.RetrieveUpdateDestroyAPIView):
